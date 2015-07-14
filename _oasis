@@ -15,12 +15,12 @@ XStdFilesAUTHORS: false
 XStdFilesREADME:  false
 BuildTools:       ocamlbuild, camlp4o
 
-Plugins:          StdFiles (0.3), DevFiles (0.3), META (0.3)
-XStdFilesAUTHORS: false
-XStdFilesREADME:  false
+Flag xen
+  Description:        Build Xen support
+  Default:            false
 
-PostConfCommand: config/arch.sh $ocamlc
 PreBuildCommand: mkdir -p _build; cp lib/*.mlh _build/
+PostConfCommand: config/arch.sh $ocamlc && ocaml postconf.ml
 
 Library bin_prot
   Path:               lib
@@ -36,6 +36,17 @@ Library bin_prot
                       Utils
   CSources:           blit_stubs.c, float_stubs.c
   BuildDepends:       unix,bigarray
+  XMETAExtraLines:    xen_linkopts = "-lbin_prot_xen_stubs"
+
+Library bin_prot_xen
+  Build$:             flag(xen)
+  CompiledObject:     best
+  Path:               lib
+  FindlibParent:      bin_prot
+  Findlibname:        xen
+  BuildDepends:       bigarray
+  CSources:           blit_stubs_xen.c, float_stubs_xen.c
+  CCOpt:              -O2 $XEN_CFLAGS
 
 Library pa_bin_prot
   Path:               syntax

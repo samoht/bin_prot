@@ -1,53 +1,41 @@
-# Generic Makefile for oasis project
+# OASIS_START
+# DO NOT EDIT (digest: a3c674b4239234cbbe53afe090018954)
 
-# Set to setup.exe for the release
-SETUP := setup-dev.exe
+SETUP = ocaml setup.ml
 
-# Default rule
-default: build
+build: setup.data
+	$(SETUP) -build $(BUILDFLAGS)
 
-# Setup for the development version
-setup-dev.exe: _oasis setup.ml
-	grep -v '^#' setup.ml > setup_dev.ml
-	ocamlfind ocamlopt -o $@ -linkpkg -package ocamlbuild,oasis.dynrun setup_dev.ml || 	  ocamlfind ocamlc -o $@ -linkpkg -package ocamlbuild,oasis.dynrun setup_dev.ml || true
-	rm -f setup_dev.*
+doc: setup.data build
+	$(SETUP) -doc $(DOCFLAGS)
 
-# Setup for the release
-setup.exe: setup.ml
-	ocamlopt.opt -o $@ $< || ocamlopt -o $@ $< || ocamlc -o $@ $<
-	rm -f setup.cmx setup.cmi setup.o setup.obj setup.cmo
+test: setup.data build
+	$(SETUP) -test $(TESTFLAGS)
 
-build: $(SETUP) setup.data
-	./$(SETUP) -build $(BUILDFLAGS)
+all:
+	$(SETUP) -all $(ALLFLAGS)
 
-doc: $(SETUP) setup.data build
-	./$(SETUP) -doc $(DOCFLAGS)
+install: setup.data
+	$(SETUP) -install $(INSTALLFLAGS)
 
-test: $(SETUP) setup.data build
-	./$(SETUP) -test $(TESTFLAGS)
+uninstall: setup.data
+	$(SETUP) -uninstall $(UNINSTALLFLAGS)
 
-all: $(SETUP)
-	./$(SETUP) -all $(ALLFLAGS)
+reinstall: setup.data
+	$(SETUP) -reinstall $(REINSTALLFLAGS)
 
-install: $(SETUP) setup.data
-	./$(SETUP) -install $(INSTALLFLAGS)
+clean:
+	$(SETUP) -clean $(CLEANFLAGS)
 
-uninstall: $(SETUP) setup.data
-	./$(SETUP) -uninstall $(UNINSTALLFLAGS)
+distclean:
+	$(SETUP) -distclean $(DISTCLEANFLAGS)
 
-reinstall: $(SETUP) setup.data
-	./$(SETUP) -reinstall $(REINSTALLFLAGS)
+setup.data:
+	$(SETUP) -configure $(CONFIGUREFLAGS)
 
-clean: $(SETUP)
-	./$(SETUP) -clean $(CLEANFLAGS)
+configure:
+	$(SETUP) -configure $(CONFIGUREFLAGS)
 
-distclean: $(SETUP)
-	./$(SETUP) -distclean $(DISTCLEANFLAGS)
+.PHONY: build doc test all install uninstall reinstall clean distclean configure
 
-configure: $(SETUP)
-	./$(SETUP) -configure $(CONFIGUREFLAGS)
-
-setup.data: $(SETUP)
-	./$(SETUP) -configure $(CONFIGUREFLAGS)
-
-.PHONY: default build doc test all install uninstall reinstall clean distclean configure
+# OASIS_STOP
